@@ -4,6 +4,7 @@ import (
 	"net/http"
 )
 
+//Route struct describing a router route
 type Route struct {
 	Name        string
 	Method      string
@@ -11,6 +12,7 @@ type Route struct {
 	HandlerFunc http.HandlerFunc
 }
 
+//Routes - array of Route
 type Routes []Route
 
 var routes = Routes{

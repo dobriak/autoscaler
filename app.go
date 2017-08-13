@@ -1,10 +1,12 @@
 package main
 
+//App struct describing autoscaling app
 type App struct {
-	AppId  string `json:"app_id"`
-	MaxCpu int    `json:"max_cpu"`
+	AppID  string `json:"app_id"`
+	MaxCPU int    `json:"max_cpu"`
 	MinMem int    `json:"min_mem"`
 	Method string `json:"method"`
 }
 
+//Apps - all monitored apps
 type Apps []App

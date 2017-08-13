@@ -2,17 +2,20 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/gorilla/mux"
 	"io"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
+//Message struct to be displayed as json
 type Message struct {
 	Message string `json:"message"`
 }
 
-func JsonResponse(w http.ResponseWriter, message string) {
+//JSONResponse write generic message as json response
+func JSONResponse(w http.ResponseWriter, message string) {
 	response := Message{message}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	if err := json.NewEncoder(w).Encode(response); err != nil {
@@ -20,16 +23,18 @@ func JsonResponse(w http.ResponseWriter, message string) {
 	}
 }
 
+//RemoveApp removes app by its ID from the pool of apps being monitored
 func RemoveApp(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	app_id := vars["appid"]
-	if err := RepoRemoveApp(app_id); err != nil {
+	appID := vars["appid"]
+	if err := RepoRemoveApp(appID); err != nil {
 		w.WriteHeader(400)
 		panic(err)
 	}
-	JsonResponse(w, "OK")
+	JSONResponse(w, "OK")
 }
 
+//AddApp adds an app to the pool of monitored apps
 func AddApp(w http.ResponseWriter, r *http.Request) {
 	var app App
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
@@ -49,28 +54,29 @@ func AddApp(w http.ResponseWriter, r *http.Request) {
 	RepoAddApp(app)
 
 	w.WriteHeader(200)
-	JsonResponse(w, "OK")
+	JSONResponse(w, "OK")
 }
 
+//GetApp finds and displays a monitored app by its ID
 func GetApp(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	app_id := vars["appid"]
-	app := RepoFindApp(app_id)
+	appID := vars["appid"]
+	app := RepoFindApp(appID)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	if err := json.NewEncoder(w).Encode(app); err != nil {
 		panic(err)
 	}
 }
 
+//IndexApps displays all monitored apps
 func IndexApps(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	//w.WriteHeader(http.StatusOK)
-
 	if err := json.NewEncoder(w).Encode(apps); err != nil {
 		panic(err)
 	}
 }
 
+//Index for slash, returns version
 func Index(w http.ResponseWriter, r *http.Request) {
-	JsonResponse(w, "Autoscaler, v0.0.1")
+	JSONResponse(w, "Autoscaler, v0.0.1")
 }
