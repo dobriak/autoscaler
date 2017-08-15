@@ -1,18 +1,31 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 var apps Apps
+var tickers map[string]*time.Ticker
 
 func init() {
-	RepoAddApp(App{AppID: "test1", MaxCPU: 10, MinMem: 20, Method: "cpu"})
-	RepoAddApp(App{AppID: "test2", MaxCPU: 20, MinMem: 10, Method: "mem"})
+	tickers = make(map[string]*time.Ticker)
+	RepoAddApp(App{"test1", 10, 20, "cpu", 5})
+	RepoAddApp(App{"test2", 20, 10, "mem", 7})
 }
 
 //RepoAddApp adds an App to the repo
 func RepoAddApp(a App) {
 	if !RepoAppInApps(a.AppID) {
 		apps = append(apps, a)
+		//start ticker
+		tickers[a.AppID] = time.NewTicker(time.Second * time.Duration(a.Interval))
+		go func(myapp App) {
+			for t := range tickers[myapp.AppID].C {
+				fmt.Printf("ticker:\t%s\t", myapp.AppID)
+				fmt.Println(t)
+			}
+		}(a)
 	}
 }
 
@@ -41,8 +54,20 @@ func RepoRemoveApp(appID string) error {
 	for i, a := range apps {
 		if a.AppID == appID {
 			apps = append(apps[:i], apps[i+1:]...)
+			//Stopping the ticker
+			tickers[appID].Stop()
 			return nil
 		}
 	}
 	return fmt.Errorf("could not find App with id of %s to delete", appID)
+}
+
+//RepoRemoveAllApps cycles through the apps array and removes them all
+func RepoRemoveAllApps() error {
+	for _, a := range apps {
+		if err := RepoRemoveApp(a.AppID); err != nil {
+			return err
+		}
+	}
+	return nil
 }
