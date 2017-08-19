@@ -18,14 +18,7 @@ func init() {
 func RepoAddApp(a App) {
 	if !RepoAppInApps(a.AppID) {
 		apps = append(apps, a)
-		//start ticker
-		tickers[a.AppID] = time.NewTicker(time.Second * time.Duration(a.Interval))
-		go func(myapp App) {
-			for t := range tickers[myapp.AppID].C {
-				fmt.Printf("ticker:\t%s\t", myapp.AppID)
-				fmt.Println(t)
-			}
-		}(a)
+		a.StartMonitor()
 	}
 }
 
