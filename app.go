@@ -20,10 +20,10 @@ type Apps []App
 //StartMonitor starts a ticker goroutine
 func (a *App) StartMonitor() {
 	tickers[a.AppID] = time.NewTicker(time.Second * time.Duration(a.Interval))
-	go doMonitoring(a)
+	go doMonitor(a)
 }
 
-func doMonitoring(a *App) {
+func doMonitor(a *App) {
 	internal := 0
 	for t := range tickers[a.AppID].C {
 		fmt.Printf("ticker:\t%s,%s\n", a.AppID, t)
