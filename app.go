@@ -7,15 +7,27 @@ import (
 
 //App struct describing autoscaling app
 type App struct {
-	AppID    string `json:"app_id"`
-	MaxCPU   int    `json:"max_cpu"`
-	MinMem   int    `json:"min_mem"`
-	Method   string `json:"method"`
-	Interval int    `json:"interval"`
+	AppID        string  `json:"app_id"`
+	MaxCPU       float64 `json:"max_cpu"`
+	MinCPU       float64 `json:"min_cpu"`
+	MaxMem       float64 `json:"max_mem"`
+	MinMem       float64 `json:"min_mem"`
+	Method       string  `json:"method"`
+	Multiplier   float64 `json:"multiplier"`
+	MaxInstances int     `json:"max_instances"`
+	MinInstances int     `json:"min_instances"`
+	WarmUp       int     `json:"warm_up"`
+	CoolDown     int     `json:"cool_down"`
+	Interval     int     `json:"interval"`
 }
 
 //Apps - all monitored apps
 type Apps []App
+
+type appState struct {
+	warmUp   int
+	coolDown int
+}
 
 //StartMonitor starts a ticker goroutine
 func (a *App) StartMonitor() {
@@ -25,18 +37,19 @@ func (a *App) StartMonitor() {
 
 //doMonitor will be storing the intermediate state of the app metrics
 func (a *App) doMonitor() {
-	var internal int
+	as := appState{0, 0}
 	var cpu, mem float64
 	for range tickers[a.AppID].C {
 		if !client.AppExists(a) {
 			fmt.Printf("%s not found in /service/marathon/v2/apps\n", a.AppID)
 			continue
 		}
+		marathonApp := client.GetMarathonApp(a.AppID)
 		//fmt.Printf("*** ticker:%s ", t)
-		internal++
-		cpu, mem = a.getCPUMem()
+		cpu, mem = a.getCPUMem(marathonApp)
 		fmt.Printf("*** app:%s ", a.AppID)
 		fmt.Printf("cpu:%f, mem:%f\n", cpu, mem)
+		a.AutoScale(cpu, mem, &as)
 	}
 }
 
@@ -45,9 +58,9 @@ func (a *App) StopMonitor() {
 	tickers[a.AppID].Stop()
 }
 
-func (a *App) getCPUMem() (float64, float64) {
+func (a *App) getCPUMem(marathonApp MarathonApp) (float64, float64) {
 
-	marathonApp := client.GetMarathonApp(a.AppID)
+	//marathonApp := client.GetMarathonApp(a.AppID)
 	//fmt.Println(marathonApp)
 
 	var stats1, stats2 TaskStats
