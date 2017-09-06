@@ -10,8 +10,8 @@ var tickers map[string]*time.Ticker
 
 func init() {
 	tickers = make(map[string]*time.Ticker)
-	RepoAddApp(App{"test1", 10, 20, "cpu", 5})
-	RepoAddApp(App{"test2", 20, 10, "mem", 7})
+	RepoAddApp(App{"/test1", 10, 20, "cpu", 10})
+	RepoAddApp(App{"/test2", 20, 10, "mem", 11})
 }
 
 //RepoAddApp adds an App to the repo

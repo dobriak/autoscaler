@@ -55,6 +55,18 @@ func (c *Client) GetAllMarathonApps() MarathonApps {
 	return result
 }
 
+//AppExists for an App
+func (c *Client) AppExists(a *App) bool {
+	var mApps = c.GetAllMarathonApps()
+	for _, mApp := range mApps.Apps {
+		//fmt.Printf("a.AppID:%s, mApp.ID:%s\n", a.AppID, mApp.ID)
+		if a.AppID == mApp.ID {
+			return true
+		}
+	}
+	return false
+}
+
 //GetMarathonApp func
 func (c *Client) GetMarathonApp(appID string) MarathonApp {
 	if strings.Index(appID, "/") == 1 {
@@ -147,6 +159,12 @@ func (c *Client) do(req *http.Request) ([]byte, error) {
 	}
 	return body, err
 
+}
+
+//isJSON: false if not a json string
+func isJSON(s string) bool {
+	var js interface{}
+	return json.Unmarshal([]byte(s), &js) == nil
 }
 
 func downloadFile(filepath string, path string) (err error) {
