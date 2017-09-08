@@ -11,6 +11,17 @@ type DcosAuthResponse struct {
 	Token string `json:"token"`
 }
 
+//MarathonAppInstances for scaling up and down
+type MarathonAppInstances struct {
+	Instances int `json:"instances"`
+}
+
+//MarathonScaleResult response you get trying to scale an app
+type MarathonScaleResult struct {
+	Version      string `json:"version"`
+	DeploymentID string `json:"deploymentId"`
+}
+
 //MarathonApps struct
 type MarathonApps struct {
 	Apps []struct {
@@ -45,4 +56,18 @@ type TaskStats struct {
 		MemLimitBytes      float64 `json:"mem_limit_bytes"`
 		Timestamp          float64 `json:"timestamp"`
 	} `json:"statistics"`
+}
+
+//FilterNonRunningTasks reslices the Tasks keeping only running ones
+func (m *MarathonApp) FilterNonRunningTasks() {
+	k := 0
+	for i, task := range m.App.Tasks {
+		if task.State == "TASK_RUNNING" {
+			if i != k {
+				m.App.Tasks[k] = task
+			}
+			k++
+		}
+	}
+	m.App.Tasks = m.App.Tasks[:k]
 }

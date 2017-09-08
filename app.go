@@ -13,7 +13,7 @@ type App struct {
 	MaxMem       float64 `json:"max_mem"`
 	MinMem       float64 `json:"min_mem"`
 	Method       string  `json:"method"`
-	Multiplier   float64 `json:"multiplier"`
+	ScaleFactor  int     `json:"scale_factor"`
 	MaxInstances int     `json:"max_instances"`
 	MinInstances int     `json:"min_instances"`
 	WarmUp       int     `json:"warm_up"`
@@ -45,11 +45,17 @@ func (a *App) doMonitor() {
 			continue
 		}
 		marathonApp := client.GetMarathonApp(a.AppID)
+		if marathonApp.App.Instances == 0 {
+			fmt.Printf("%s suspended, skipping monitoring cycle\n", marathonApp.App.ID)
+			continue
+		}
+		if !a.EnsureMinMaxInstances(marathonApp) {
+			continue
+		}
 		//fmt.Printf("*** ticker:%s ", t)
 		cpu, mem = a.getCPUMem(marathonApp)
-		fmt.Printf("*** app:%s ", a.AppID)
-		fmt.Printf("cpu:%f, mem:%f\n", cpu, mem)
-		a.AutoScale(cpu, mem, &as)
+		fmt.Printf("app:%s cpu:%f, mem:%f\n", a.AppID, cpu, mem)
+		a.AutoScale(cpu, mem, &as, marathonApp)
 	}
 }
 
@@ -59,13 +65,12 @@ func (a *App) StopMonitor() {
 }
 
 func (a *App) getCPUMem(marathonApp MarathonApp) (float64, float64) {
-
-	//marathonApp := client.GetMarathonApp(a.AppID)
-	//fmt.Println(marathonApp)
-
-	var stats1, stats2 TaskStats
-	var cpu, cpu1, cpu2, cpuD, timeD float64
-	var mem float64
+	var (
+		stats1, stats2               TaskStats
+		cpu, cpu1, cpu2, cpuD, timeD float64
+		mem                          float64
+	)
+	marathonApp.FilterNonRunningTasks()
 	for _, task := range marathonApp.App.Tasks {
 		//fmt.Printf("id:%s app_id:%s slave_id:%s\n", task.ID, task.AppID, task.SlaveID)
 		stats1 = client.GetTaskStats(task.ID, task.SlaveID)
@@ -79,7 +84,6 @@ func (a *App) getCPUMem(marathonApp MarathonApp) (float64, float64) {
 		timeD = stats2.Statistics.Timestamp - stats1.Statistics.Timestamp
 		cpu = cpu + (cpuD / timeD)
 		mem = mem + (stats1.Statistics.MemRssBytes / stats1.Statistics.MemLimitBytes)
-		//fmt.Printf("cpu:%f, mem:%f\n", cpu, mem)
 	}
 	cpu = cpu / float64(len(marathonApp.App.Tasks)) * 100
 	mem = mem / float64(len(marathonApp.App.Tasks)) * 100

@@ -69,9 +69,7 @@ func (c *Client) AppExists(a *App) bool {
 
 //GetMarathonApp func
 func (c *Client) GetMarathonApp(appID string) MarathonApp {
-	if strings.Index(appID, "/") == 1 {
-		appID = strings.Replace(appID, "/", "", 1)
-	}
+	appID = formatAppID(appID)
 
 	req, err := c.newRequest("GET", fmt.Sprintf("/service/marathon/v2/apps/%s", appID), nil)
 	if err != nil {
@@ -86,6 +84,40 @@ func (c *Client) GetMarathonApp(appID string) MarathonApp {
 		return MarathonApp{}
 	}
 	return result
+}
+
+//ScaleMarathonApp scales to target number of instances
+func (c *Client) ScaleMarathonApp(appID string, instances int) {
+	appID = formatAppID(appID)
+
+	data := MarathonAppInstances{instances}
+	req, err := c.newRequest("PUT", fmt.Sprintf("/service/marathon/v2/apps/%s", appID), data)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	body, err := c.do(req)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	var resp MarathonScaleResult
+	err = json.Unmarshal([]byte(body), &resp)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Printf("Successfully scaled app %s: version %s, deploymentId %s",
+			appID, resp.Version, resp.DeploymentID)
+	}
+
+	fmt.Println(resp)
+}
+
+func formatAppID(appID string) string {
+	if strings.Index(appID, "/") == 1 {
+		appID = strings.Replace(appID, "/", "", 1)
+	}
+	return appID
 }
 
 //GetTaskStats func
