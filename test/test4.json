@@ -1,0 +1,15 @@
+{
+    "id": "/test4",
+    "instances": 2,
+    "portDefinitions": [],
+    "container": {
+      "type": "DOCKER",
+      "docker": {
+        "image": "alpine"
+      }
+    },
+    "cpus": 0.1,
+    "mem": 32,
+    "requirePorts": false,
+    "cmd": "sleep 15s; for i in $(seq 5); do BLOB=$(dd if=/dev/urandom bs=1MB count=14); sleep 3s;  echo \\\"iteration $i\\\"; done; sleep 8h"
+  }

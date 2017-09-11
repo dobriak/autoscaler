@@ -25,7 +25,7 @@ curl http://localhost:8080/apps/test1
 
 Create and start a Marathon app scaling monitor wit ID of ```test3```:
 ```bash
-curl -X POST -d '{"app_id":"test3", "max_cpu":50, "min_mem":70, "method":"or", "interval":55}' http://localhost:8080/apps
+curl -X POST -d '{ "app_id": "/test1","max_cpu": 60,"min_cpu": 20,"max_mem": 90,"min_mem": 5,"method": "cpu","scale_factor": 1,"max_instances": 6,"min_instances": 2,"warm_up": 3,"cool_down": 3,"interval": 17}' http://localhost:8080/apps
 ```
 
 Stop and remove Marathon app scaling monitor with ID of ```test3```:

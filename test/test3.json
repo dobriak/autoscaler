@@ -1,0 +1,15 @@
+{
+    "id": "/test3",
+    "instances": 2,
+    "portDefinitions": [],
+    "container": {
+      "type": "DOCKER",
+      "docker": {
+        "image": "alpine"
+      }
+    },
+    "cpus": 0.1,
+    "mem": 32,
+    "requirePorts": false,
+    "cmd": "sleep 15s; while true; do true; done"
+  }
