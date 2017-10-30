@@ -42,13 +42,11 @@ func (a *App) doMonitor() {
 	var cpu, mem float64
 	for range tickers[a.AppID].C {
 		if !client.AppExists(a) {
-			//fmt.Printf("%s not found in /service/marathon/v2/apps\n", a.AppID)
 			log.Warningf("%s not found in /service/marathon/v2/apps\n", a.AppID)
 			continue
 		}
 		marathonApp := client.GetMarathonApp(a.AppID)
 		if marathonApp.App.Instances == 0 {
-			//fmt.Printf("%s suspended, skipping monitoring cycle\n", marathonApp.App.ID)
 			log.Warningf("%s suspended, skipping monitoring cycle\n", marathonApp.App.ID)
 			continue
 		}
@@ -56,8 +54,7 @@ func (a *App) doMonitor() {
 			continue
 		}
 		cpu, mem = a.getCPUMem(marathonApp)
-		//fmt.Printf("app:%s cpu:%f, mem:%f\n", a.AppID, cpu, mem)
-		log.Infof("app:%s cpu:%f, mem:%f\n", a.AppID, cpu, mem)
+		log.Infof("app:%s cpu:%f, mem:%f", a.AppID, cpu, mem)
 		a.AutoScale(cpu, mem, &as, marathonApp)
 	}
 }
@@ -75,9 +72,8 @@ func (a *App) getCPUMem(marathonApp MarathonApp) (float64, float64) {
 	)
 	marathonApp.FilterNonRunningTasks()
 	for _, task := range marathonApp.App.Tasks {
-		//fmt.Printf("id:%s app_id:%s slave_id:%s\n", task.ID, task.AppID, task.SlaveID)
 		stats1 = client.GetTaskStats(task.ID, task.SlaveID)
-		//fmt.Println(stats)
+		//TODO: implement a trailing data structure here
 		time.Sleep(time.Second * 1)
 		stats2 = client.GetTaskStats(task.ID, task.SlaveID)
 

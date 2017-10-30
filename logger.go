@@ -1,7 +1,6 @@
 package main
 
 import (
-	//	"log"
 	"net/http"
 	"time"
 
@@ -20,12 +19,5 @@ func Logger(inner http.Handler, name string) http.Handler {
 			name,
 			time.Since(start),
 		)
-		/*log.Printf(
-			"%s\t%s\t%s\t%s",
-			r.Method,
-			r.RequestURI,
-			name,
-			time.Since(start),
-		) */
 	})
 }

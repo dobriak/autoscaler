@@ -37,12 +37,9 @@ func generateSignal(cpu, mem float64, a *App) ScaleSignal {
 	default:
 		log.Errorf("method should be cpu|mem|and|or: %s\n", method)
 		log.Panicln("Invalid scaling parameter method.")
-		//fmt.Printf("method should be cpu|mem|and|or: %s\n", method)
-		//panic("Invalid scaling parameter method.")
 	}
 	if result.Scale.up && result.Scale.down {
 		log.Warnf("Scale up and scale down signal generated, defaulting to no operation. %+v\n", result)
-		//fmt.Printf("Scale up and scale down signal generated, defaulting to no operation. %+v\n", result)
 		result.Scale.up = false
 		result.Scale.down = false
 	}
@@ -63,19 +60,14 @@ func (a *App) AutoScale(cpu, mem float64, st *appState, mApp MarathonApp) {
 				if st.warmUp >= a.WarmUp {
 					log.Infof("%s scale up triggered with %d of %d signals of %s\n",
 						a.AppID, st.warmUp, a.WarmUp, a.Method)
-					//fmt.Printf("%s scale up triggered with %d of %d signals of %s\n",
-					//	a.AppID, st.warmUp, a.WarmUp, a.Method)
 					a.doScale(mApp, a.ScaleFactor)
 					st.warmUp = 0
 				} else {
 					log.Infof("%s warming up %s(%d of %d)\n",
 						a.AppID, a.Method, st.warmUp, a.WarmUp)
-					//fmt.Printf("%s warming up %s(%d of %d)\n",
-					//	a.AppID, a.Method, st.warmUp, a.WarmUp)
 				}
 			} else {
 				log.Infof("%s reached max instances %d\n", a.AppID, a.MaxInstances)
-				//fmt.Printf("%s reached max instances %d\n", a.AppID, a.MaxInstances)
 			}
 		}
 		if sig.Scale.down {
@@ -84,19 +76,14 @@ func (a *App) AutoScale(cpu, mem float64, st *appState, mApp MarathonApp) {
 				if st.coolDown >= a.CoolDown {
 					log.Infof("%s scale down triggered with %d of %d signals of %s\n",
 						a.AppID, st.coolDown, a.CoolDown, a.Method)
-					//fmt.Printf("%s scale down triggered with %d of %d signals of %s\n",
-					//		a.AppID, st.coolDown, a.CoolDown, a.Method)
 					a.doScale(mApp, -a.ScaleFactor)
 					st.coolDown = 0
 				} else {
 					log.Infof("%s cooling down %s(%d of %d)\n",
 						a.AppID, a.Method, st.coolDown, a.CoolDown)
-					//fmt.Printf("%s cooling down %s(%d of %d)\n",
-					//	a.AppID, a.Method, st.coolDown, a.CoolDown)
 				}
 			} else {
 				log.Infof("%s reached min instances %d\n", a.AppID, a.MinInstances)
-				//fmt.Printf("%s reached min instances %d\n", a.AppID, a.MinInstances)
 			}
 		}
 	}
@@ -110,15 +97,11 @@ func (a *App) EnsureMinMaxInstances(mApp MarathonApp) bool {
 		diff = a.MinInstances - mApp.App.Instances
 		log.Infof("%s will be scaled up by %d to reach minimum instances of %d\n",
 			a.AppID, diff, a.MinInstances)
-		//fmt.Printf("%s will be scaled up by %d to reach minimum instances of %d\n",
-		//		a.AppID, diff, a.MinInstances)
 		a.doScale(mApp, diff)
 	} else if mApp.App.Instances > a.MaxInstances {
 		diff = a.MaxInstances - mApp.App.Instances
 		log.Infof("%s will be scaled down by %d to reach maximum instances of %d\n",
 			a.AppID, diff, a.MaxInstances)
-		//fmt.Printf("%s will be scaled down by %d to reach maximum instances of %d\n",
-		//	a.AppID, diff, a.MaxInstances)
 		a.doScale(mApp, diff)
 	}
 	return diff == 0
@@ -132,6 +115,5 @@ func (a *App) doScale(mApp MarathonApp, instances int) {
 		target = a.MinInstances
 	}
 	log.Infof("Scaling %s to %d instances\n", a.AppID, target)
-	//fmt.Printf("Scaling %s to %d instances\n", a.AppID, target)
 	client.ScaleMarathonApp(a.AppID, target)
 }

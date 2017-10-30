@@ -30,7 +30,6 @@ func init() {
 	baseURL := os.Getenv("AS_BASEURL")
 	if len(baseURL) == 0 {
 		log.Panicln("Please supply AS_BASEURL")
-		//panic("Please supply AS_BASEURL")
 	}
 
 	tr := &http.Transport{
@@ -91,12 +90,10 @@ func (c *Client) ScaleMarathonApp(appID string, instances int) {
 	req, err := c.newRequest("PUT", fmt.Sprintf("/service/marathon/v2/apps/%s", appID), data)
 	if err != nil {
 		log.Errorln(err)
-		//fmt.Println(err)
 	}
 
 	body, err := c.do(req)
 	if err != nil {
-		//fmt.Println(err)
 		log.Errorln(err)
 	}
 
@@ -104,12 +101,9 @@ func (c *Client) ScaleMarathonApp(appID string, instances int) {
 	err = json.Unmarshal([]byte(body), &resp)
 	if err != nil {
 		log.Errorln(err)
-		//fmt.Println(err)
 	} else {
 		log.Infof("Successfully scaled app %s: version %s, deploymentId %s",
 			appID, resp.Version, resp.DeploymentID)
-		//fmt.Printf("Successfully scaled app %s: version %s, deploymentId %s",
-		//	appID, resp.Version, resp.DeploymentID)
 	}
 
 	fmt.Println(resp)
@@ -120,7 +114,6 @@ func (c *Client) GetTaskStats(taskID string, slaveID string) TaskStats {
 	req, err := c.newRequest("GET", fmt.Sprintf("/slave/%s/monitor/statistics.json", slaveID), nil)
 	if err != nil {
 		log.Errorln("Error querying statistics.json")
-		//fmt.Println("Error querying statistics.json")
 		return TaskStats{}
 	}
 	body, _ := c.do(req)
@@ -128,7 +121,6 @@ func (c *Client) GetTaskStats(taskID string, slaveID string) TaskStats {
 	err = json.Unmarshal(body, &result)
 	if err != nil {
 		log.Errorln("Error unmarshalling TasksStats")
-		//fmt.Println("Error unmarshalling TasksStats")
 		return TaskStats{}
 	}
 	for _, ts := range result {
@@ -180,8 +172,6 @@ func (c *Client) do(req *http.Request) ([]byte, error) {
 
 	if 200 != resp.StatusCode {
 		if 401 == resp.StatusCode {
-			//fmt.Println("Authentication expired. Re-authorizing account")
-			//panic("not implemented")
 			log.Infoln("Authentication expired. Re-authorizing account")
 			log.Panicln("Not implemented")
 		} else {
@@ -214,7 +204,6 @@ func (c *Client) auth() {
 	pass := os.Getenv("AS_PASSWORD")
 	if len(user) == 0 || len(pass) == 0 {
 		log.Panicln("Set AS_USERID and AS_PASSWORD env vars")
-		//panic("Set AS_USERID and AS_PASSWORD env vars")
 	}
 	usrPass := DcosBasicAuth{user, pass}
 
@@ -222,7 +211,6 @@ func (c *Client) auth() {
 	if err != nil {
 		fmt.Println(err)
 		log.Panicln("Error trying to auth")
-		//panic("Error trying to auth")
 	}
 
 	body, _ := c.do(req)
@@ -232,11 +220,9 @@ func (c *Client) auth() {
 		fmt.Println(body)
 		fmt.Println(err)
 		log.Panicln("Couldn't convert to dcosAuthResponse")
-		//panic("Couldn't convert to dcosAuthResponse")
 	}
 
 	log.Infof("Token obtained: %s\n", result.Token)
-	//fmt.Printf("Token obtained: %s\n", result.Token)
 	c.Token = result.Token
 
 }
