@@ -1,0 +1,4 @@
+Use logger for all logging, remove http decorator in the router
+Dockerize the whole thing
+Create and use service account, write code to handle expired tokens
+

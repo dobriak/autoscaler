@@ -216,6 +216,7 @@ func (c *Client) auth() {
 	var result DcosAuthResponse
 	err = json.Unmarshal(body, &result)
 	if err != nil {
+		fmt.Println(body)
 		fmt.Println(err)
 		panic("Couldn't convert to dcosAuthResponse")
 	}
