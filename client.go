@@ -222,7 +222,7 @@ func (c *Client) auth() {
 		log.Panicln("Couldn't convert to dcosAuthResponse")
 	}
 
-	log.Infof("Token obtained: %s\n", result.Token)
+	log.Infof("Token obtained: %s", result.Token)
 	c.Token = result.Token
 
 }

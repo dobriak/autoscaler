@@ -42,12 +42,12 @@ func (a *App) doMonitor() {
 	var cpu, mem float64
 	for range tickers[a.AppID].C {
 		if !client.AppExists(a) {
-			log.Warningf("%s not found in /service/marathon/v2/apps\n", a.AppID)
+			log.Warningf("%s not found in /service/marathon/v2/app", a.AppID)
 			continue
 		}
 		marathonApp := client.GetMarathonApp(a.AppID)
 		if marathonApp.App.Instances == 0 {
-			log.Warningf("%s suspended, skipping monitoring cycle\n", marathonApp.App.ID)
+			log.Warningf("%s suspended, skipping monitoring cycle", marathonApp.App.ID)
 			continue
 		}
 		if !a.EnsureMinMaxInstances(marathonApp) {
