@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -19,7 +20,8 @@ func JSONResponse(w http.ResponseWriter, message string) {
 	response := Message{message}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		panic(err)
+		//panic(err)
+		log.Panicln(err)
 	}
 }
 
@@ -29,7 +31,8 @@ func RemoveApp(w http.ResponseWriter, r *http.Request) {
 	appID := vars["appid"]
 	if err := RepoRemoveApp(appID); err != nil {
 		w.WriteHeader(400)
-		panic(err)
+		//panic(err)
+		log.Panicln(err)
 	}
 	JSONResponse(w, "OK")
 }
@@ -39,16 +42,19 @@ func AddApp(w http.ResponseWriter, r *http.Request) {
 	var app App
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
-		panic(err)
+		//panic(err)
+		log.Panicln(err)
 	}
 	if err := r.Body.Close(); err != nil {
-		panic(err)
+		//panic(err)
+		log.Panicln(err)
 	}
 	if err := json.Unmarshal(body, &app); err != nil {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(422) // unprocessable entity
 		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
+			//panic(err)
+			log.Panicln(err)
 		}
 	}
 	RepoAddApp(app)
@@ -64,7 +70,8 @@ func GetApp(w http.ResponseWriter, r *http.Request) {
 	app := RepoFindApp(appID)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	if err := json.NewEncoder(w).Encode(app); err != nil {
-		panic(err)
+		//panic(err)
+		log.Panicln(err)
 	}
 }
 
@@ -72,7 +79,8 @@ func GetApp(w http.ResponseWriter, r *http.Request) {
 func IndexApps(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	if err := json.NewEncoder(w).Encode(apps); err != nil {
-		panic(err)
+		//panic(err)
+		log.Panicln(err)
 	}
 }
 

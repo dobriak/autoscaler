@@ -1,9 +1,11 @@
 package main
 
 import (
-	"log"
+	//	"log"
 	"net/http"
 	"time"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 //Logger provides a decorator for logging
@@ -12,13 +14,18 @@ func Logger(inner http.Handler, name string) http.Handler {
 		start := time.Now()
 
 		inner.ServeHTTP(w, r)
-
-		log.Printf(
-			"%s\t%s\t%s\t%s",
+		log.Infoln(
 			r.Method,
 			r.RequestURI,
 			name,
 			time.Since(start),
 		)
+		/*log.Printf(
+			"%s\t%s\t%s\t%s",
+			r.Method,
+			r.RequestURI,
+			name,
+			time.Since(start),
+		) */
 	})
 }

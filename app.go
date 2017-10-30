@@ -1,8 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"time"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 //App struct describing autoscaling app
@@ -41,20 +42,22 @@ func (a *App) doMonitor() {
 	var cpu, mem float64
 	for range tickers[a.AppID].C {
 		if !client.AppExists(a) {
-			fmt.Printf("%s not found in /service/marathon/v2/apps\n", a.AppID)
+			//fmt.Printf("%s not found in /service/marathon/v2/apps\n", a.AppID)
+			log.Warningf("%s not found in /service/marathon/v2/apps\n", a.AppID)
 			continue
 		}
 		marathonApp := client.GetMarathonApp(a.AppID)
 		if marathonApp.App.Instances == 0 {
-			fmt.Printf("%s suspended, skipping monitoring cycle\n", marathonApp.App.ID)
+			//fmt.Printf("%s suspended, skipping monitoring cycle\n", marathonApp.App.ID)
+			log.Warningf("%s suspended, skipping monitoring cycle\n", marathonApp.App.ID)
 			continue
 		}
 		if !a.EnsureMinMaxInstances(marathonApp) {
 			continue
 		}
-		//fmt.Printf("*** ticker:%s ", t)
 		cpu, mem = a.getCPUMem(marathonApp)
-		fmt.Printf("app:%s cpu:%f, mem:%f\n", a.AppID, cpu, mem)
+		//fmt.Printf("app:%s cpu:%f, mem:%f\n", a.AppID, cpu, mem)
+		log.Infof("app:%s cpu:%f, mem:%f\n", a.AppID, cpu, mem)
 		a.AutoScale(cpu, mem, &as, marathonApp)
 	}
 }

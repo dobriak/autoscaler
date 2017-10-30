@@ -10,6 +10,8 @@ import (
 	"net/http"
 	"os"
 	"time"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 //Client struct
@@ -27,7 +29,8 @@ func init() {
 	//get baseurl from env
 	baseURL := os.Getenv("AS_BASEURL")
 	if len(baseURL) == 0 {
-		panic("Please supply AS_BASEURL")
+		log.Panicln("Please supply AS_BASEURL")
+		//panic("Please supply AS_BASEURL")
 	}
 
 	tr := &http.Transport{
@@ -58,7 +61,6 @@ func (c *Client) GetAllMarathonApps() MarathonApps {
 func (c *Client) AppExists(a *App) bool {
 	var mApps = c.GetAllMarathonApps()
 	for _, mApp := range mApps.Apps {
-		//fmt.Printf("a.AppID:%s, mApp.ID:%s\n", a.AppID, mApp.ID)
 		if a.AppID == mApp.ID {
 			return true
 		}
@@ -88,21 +90,26 @@ func (c *Client) ScaleMarathonApp(appID string, instances int) {
 	data := MarathonAppInstances{instances}
 	req, err := c.newRequest("PUT", fmt.Sprintf("/service/marathon/v2/apps/%s", appID), data)
 	if err != nil {
-		fmt.Println(err)
+		log.Errorln(err)
+		//fmt.Println(err)
 	}
 
 	body, err := c.do(req)
 	if err != nil {
-		fmt.Println(err)
+		//fmt.Println(err)
+		log.Errorln(err)
 	}
 
 	var resp MarathonScaleResult
 	err = json.Unmarshal([]byte(body), &resp)
 	if err != nil {
-		fmt.Println(err)
+		log.Errorln(err)
+		//fmt.Println(err)
 	} else {
-		fmt.Printf("Successfully scaled app %s: version %s, deploymentId %s",
+		log.Infof("Successfully scaled app %s: version %s, deploymentId %s",
 			appID, resp.Version, resp.DeploymentID)
+		//fmt.Printf("Successfully scaled app %s: version %s, deploymentId %s",
+		//	appID, resp.Version, resp.DeploymentID)
 	}
 
 	fmt.Println(resp)
@@ -112,14 +119,16 @@ func (c *Client) ScaleMarathonApp(appID string, instances int) {
 func (c *Client) GetTaskStats(taskID string, slaveID string) TaskStats {
 	req, err := c.newRequest("GET", fmt.Sprintf("/slave/%s/monitor/statistics.json", slaveID), nil)
 	if err != nil {
-		fmt.Println("Error querying statistics.json")
+		log.Errorln("Error querying statistics.json")
+		//fmt.Println("Error querying statistics.json")
 		return TaskStats{}
 	}
 	body, _ := c.do(req)
 	var result []TaskStats
 	err = json.Unmarshal(body, &result)
 	if err != nil {
-		fmt.Println("Error unmarshalling TasksStats")
+		log.Errorln("Error unmarshalling TasksStats")
+		//fmt.Println("Error unmarshalling TasksStats")
 		return TaskStats{}
 	}
 	for _, ts := range result {
@@ -171,8 +180,10 @@ func (c *Client) do(req *http.Request) ([]byte, error) {
 
 	if 200 != resp.StatusCode {
 		if 401 == resp.StatusCode {
-			fmt.Println("Authentication expired. Re-authorizing account")
-			panic("not implemented")
+			//fmt.Println("Authentication expired. Re-authorizing account")
+			//panic("not implemented")
+			log.Infoln("Authentication expired. Re-authorizing account")
+			log.Panicln("Not implemented")
 		} else {
 			return nil, fmt.Errorf("%s", body)
 		}
@@ -202,14 +213,16 @@ func (c *Client) auth() {
 	user := os.Getenv("AS_USERID")
 	pass := os.Getenv("AS_PASSWORD")
 	if len(user) == 0 || len(pass) == 0 {
-		panic("Set AS_USERID and AS_PASSWORD env vars")
+		log.Panicln("Set AS_USERID and AS_PASSWORD env vars")
+		//panic("Set AS_USERID and AS_PASSWORD env vars")
 	}
 	usrPass := DcosBasicAuth{user, pass}
 
 	req, err := client.newRequest("POST", "/acs/api/v1/auth/login", usrPass)
 	if err != nil {
 		fmt.Println(err)
-		panic("Error trying to auth")
+		log.Panicln("Error trying to auth")
+		//panic("Error trying to auth")
 	}
 
 	body, _ := c.do(req)
@@ -218,10 +231,12 @@ func (c *Client) auth() {
 	if err != nil {
 		fmt.Println(body)
 		fmt.Println(err)
-		panic("Couldn't convert to dcosAuthResponse")
+		log.Panicln("Couldn't convert to dcosAuthResponse")
+		//panic("Couldn't convert to dcosAuthResponse")
 	}
 
-	fmt.Printf("Token obtained: %s\n", result.Token)
+	log.Infof("Token obtained: %s\n", result.Token)
+	//fmt.Printf("Token obtained: %s\n", result.Token)
 	c.Token = result.Token
 
 }

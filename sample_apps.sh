@@ -3,11 +3,11 @@
 # Spins up 4 Marathon apps and creates 4 App monitors
 # To stop the monitors and remove the marathon apps: sample_apps.sh stop
 #
-set -x
+#set -x
 AS_URL="http://localhost:8080"
 function start(){
     for i in {1..4}; do
-        dcos marathon app remove test${i}
+        dcos marathon app remove test${i} || echo "+"
         dcos marathon app add test/test${i}.json
         sleep 10s
     done
@@ -29,21 +29,22 @@ function start(){
 
 function stop(){
     for i in {1..4}; do
-        curl -X DELETE ${AS_URL}/apps/test${i}
-        dcos marathon app remove test${i}
+        curl -X DELETE ${AS_URL}/apps/test${i} || echo "*"
+        dcos marathon app remove test${i} || echo "+"
         sleep 10s
     done
 }
 
 # Main
-if ! curl ${AS_URL}; then
-    echo "Please start autoscaler first."
-    exit 1
-fi
+
 
 if  [ "${1}" == "stop" ]; then
     stop
 else
+    if ! curl ${AS_URL}; then
+        echo "Please start autoscaler first."
+        exit 1
+    fi
     start
 fi
 
