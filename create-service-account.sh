@@ -9,7 +9,7 @@ NAMESPACE="${2/\//%252F}"
 echo $NAMESPACE
 
 # Installing EE cli
-dcos package install --cli dcos-enterprise-cli
+dcos package install --cli dcos-enterprise-cli --yes
 
 # Get root CA
 curl -k -v $(dcos config show core.dcos_url)/ca/dcos-ca.crt -o dcos-ca.crt

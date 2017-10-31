@@ -4,7 +4,7 @@
 # To stop the monitors and remove the marathon apps: sample_apps.sh stop
 #
 #set -x
-AS_URL="http://autoscaler.marathon.mesos:XXXXX"
+AS_URL="http://autoscaler.marathon.l4lb.thisdcos.directory"
 MASTER_URL="http://leader.mesos"
 NAMESPACE="myapp"
 SU_USR=""
