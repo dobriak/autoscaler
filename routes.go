@@ -31,7 +31,7 @@ var routes = Routes{
 	Route{
 		"GetApp",
 		"GET",
-		"/apps/{appid}",
+		"/app",
 		GetApp,
 	},
 	Route{
@@ -43,7 +43,22 @@ var routes = Routes{
 	Route{
 		"RemoveApp",
 		"DELETE",
-		"/apps/{appid}",
+		"/apps",
 		RemoveApp,
 	},
 }
+
+/*
+	Route{
+		"GetApp",
+		"GET",
+		"/apps/{appid}",
+		GetApp,
+	},
+	Route{
+		"RemoveApp",
+		"DELETE",
+		"/apps/{appid}",
+		RemoveApp,
+	},
+*/

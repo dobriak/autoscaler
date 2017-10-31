@@ -6,13 +6,16 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-
-	"github.com/gorilla/mux"
 )
 
 //Message struct to be displayed as json
 type Message struct {
 	Message string `json:"message"`
+}
+
+//AppID for form input of IDs
+type AppID struct {
+	AppID string `json:"app_id"`
 }
 
 //JSONResponse write generic message as json response
@@ -26,9 +29,24 @@ func JSONResponse(w http.ResponseWriter, message string) {
 
 //RemoveApp removes app by its ID from the pool of apps being monitored
 func RemoveApp(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	appID := vars["appid"]
-	if err := RepoRemoveApp(appID); err != nil {
+	var appID AppID
+
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
+	if err != nil {
+		log.Panicln(err)
+	}
+	if err := r.Body.Close(); err != nil {
+		log.Panicln(err)
+	}
+	if err := json.Unmarshal(body, &appID); err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(422) // unprocessable entity
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			log.Panicln(err)
+		}
+	}
+
+	if err := RepoRemoveApp(appID.AppID); err != nil {
 		w.WriteHeader(400)
 		log.Panicln(err)
 	}
@@ -60,9 +78,25 @@ func AddApp(w http.ResponseWriter, r *http.Request) {
 
 //GetApp finds and displays a monitored app by its ID
 func GetApp(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	appID := vars["appid"]
-	app := RepoFindApp(appID)
+	//vars := mux.Vars(r)
+	//appID := vars["appid"]
+	var appID AppID
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
+	if err != nil {
+		log.Panicln(err)
+	}
+	if err := r.Body.Close(); err != nil {
+		log.Panicln(err)
+	}
+	if err := json.Unmarshal(body, &appID); err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(422) // unprocessable entity
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			log.Panicln(err)
+		}
+	}
+
+	app := RepoFindApp(appID.AppID)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	if err := json.NewEncoder(w).Encode(app); err != nil {
 		log.Panicln(err)

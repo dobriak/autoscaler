@@ -31,7 +31,7 @@ function start(){
 
 function stop(){
     for i in {1..4}; do
-        curl -X DELETE ${AS_URL}/apps/${NAMESPACE}/test${i} &> /dev/null
+        curl -X DELETE -d '{"app_id": "/'${NAMESPACE}'/test'${i}'"}' ${AS_URL}/apps &> /dev/null
         dcos marathon app remove /${NAMESPACE}/test${i} &> /dev/null
         sleep 10s
     done

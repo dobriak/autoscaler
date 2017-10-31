@@ -33,7 +33,6 @@ func RepoAppInApps(appID string) bool {
 
 //RepoFindApp returns an App object based on app ID
 func RepoFindApp(appID string) App {
-	appID = prependSlash(appID)
 	for _, a := range apps {
 		if a.AppID == appID {
 			return a
@@ -44,7 +43,6 @@ func RepoFindApp(appID string) App {
 
 //RepoRemoveApp re-slices the apps list to remove an app by its ID
 func RepoRemoveApp(appID string) error {
-	appID = prependSlash(appID)
 	for i, a := range apps {
 		if a.AppID == appID {
 			apps = append(apps[:i], apps[i+1:]...)
