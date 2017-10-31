@@ -1,4 +1,12 @@
-Use logger for all logging, remove http decorator in the router
-Dockerize the whole thing
-Create and use service account, write code to handle expired tokens
++ Use logger for all logging, remove http decorator in the router
+- Dockerize the whole thing
+- Create and use service account, write code to handle expired tokens
+
+jwt_token = jwt.encode({'uid': saas["uid"]},saas["private_key"], algorithm="RS256")
+
+print(jwt_token)
+eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJzY2FsZXIifQ.iuWEMcP36Z3ZS8t_YRLwhwryr9myif-oD9okaPAe_FtxDhJZ4VPKMcbt-73zykHDE2L33iFTpRTn3SjjjPOYdAbR8E9Qer98NafvSSwhYmc2Ir9Nnw6yzIW7M_c6QmMkMeQytiOPC2c1KO-Q92Y5qNhEzmGKZWKUnX-TwNV99YwAAU8hTPDA9KOIPi7MaJlKa4ZhjfzUIJN9rMOwz6jb8pcpge8TqTpbSctquWTOwwad0DXCNOw414J6KNaZYB-PIM74zwjih-aApRbwP6dM5Am_VFYjeZjwUhIKjjOm_CFt5OOd0-GaVY6dK4G4VnfJO8tC0cKvLsVI02W_t0OaQw
+
+json.dumps({"uid": saas["uid"], "token": jwt_token.decode('utf-8')})
+'{"token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJzY2FsZXIifQ.iuWEMcP36Z3ZS8t_YRLwhwryr9myif-oD9okaPAe_FtxDhJZ4VPKMcbt-73zykHDE2L33iFTpRTn3SjjjPOYdAbR8E9Qer98NafvSSwhYmc2Ir9Nnw6yzIW7M_c6QmMkMeQytiOPC2c1KO-Q92Y5qNhEzmGKZWKUnX-TwNV99YwAAU8hTPDA9KOIPi7MaJlKa4ZhjfzUIJN9rMOwz6jb8pcpge8TqTpbSctquWTOwwad0DXCNOw414J6KNaZYB-PIM74zwjih-aApRbwP6dM5Am_VFYjeZjwUhIKjjOm_CFt5OOd0-GaVY6dK4G4VnfJO8tC0cKvLsVI02W_t0OaQw", "uid": "scaler"}'
 

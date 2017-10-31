@@ -106,7 +106,7 @@ func (c *Client) ScaleMarathonApp(appID string, instances int) {
 			appID, resp.Version, resp.DeploymentID)
 	}
 
-	fmt.Println(resp)
+	log.Infoln(resp)
 }
 
 //GetTaskStats func
@@ -173,7 +173,14 @@ func (c *Client) do(req *http.Request) ([]byte, error) {
 	if 200 != resp.StatusCode {
 		if 401 == resp.StatusCode {
 			log.Infoln("Authentication expired. Re-authorizing account")
-			log.Panicln("Not implemented")
+			// Stop all monitors, re-authenticate, start all monitors
+			for _, a := range apps {
+				a.StopMonitor()
+			}
+			c.auth()
+			for _, a := range apps {
+				a.StartMonitor()
+			}
 		} else {
 			return nil, fmt.Errorf("%s", body)
 		}
@@ -188,41 +195,26 @@ func isJSON(s string) bool {
 	return json.Unmarshal([]byte(s), &js) == nil
 }
 
-func downloadFile(filepath string, path string) (err error) {
+func (c *Client) downloadFile(filepath string, path string) {
 	// Check if exists
 	if _, err := os.Stat(filepath); os.IsNotExist(err) {
+		out, err := os.Create(filepath)
 		if err != nil {
-			return err
+			log.Panicln(err)
+		}
+		defer out.Close()
+		resp, err := http.Get(fmt.Sprintf("%s%s", c.BaseURL, path))
+		if err != nil {
+			log.Panicln(err)
+		}
+		defer resp.Body.Close()
+		numbytes, err := io.Copy(out, resp.Body)
+		if err != nil {
+			log.Panicln(err)
+		}
+
+		if numbytes == 0 {
+			log.Panicln("0 bytes downloaded")
 		}
 	}
-	return nil
-}
-
-func (c *Client) auth() {
-	// Do we have username/password?
-	user := os.Getenv("AS_USERID")
-	pass := os.Getenv("AS_PASSWORD")
-	if len(user) == 0 || len(pass) == 0 {
-		log.Panicln("Set AS_USERID and AS_PASSWORD env vars")
-	}
-	usrPass := DcosBasicAuth{user, pass}
-
-	req, err := client.newRequest("POST", "/acs/api/v1/auth/login", usrPass)
-	if err != nil {
-		fmt.Println(err)
-		log.Panicln("Error trying to auth")
-	}
-
-	body, _ := c.do(req)
-	var result DcosAuthResponse
-	err = json.Unmarshal(body, &result)
-	if err != nil {
-		fmt.Println(body)
-		fmt.Println(err)
-		log.Panicln("Couldn't convert to dcosAuthResponse")
-	}
-
-	log.Infof("Token obtained: %s", result.Token)
-	c.Token = result.Token
-
 }
