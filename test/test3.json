@@ -1,5 +1,5 @@
 {
-    "id": "/test3",
+    "id": "NAMESPACE/test3",
     "instances": 2,
     "portDefinitions": [],
     "container": {
@@ -12,4 +12,4 @@
     "mem": 32,
     "requirePorts": false,
     "cmd": "sleep 15s; while true; do true; done"
-  }
+}
