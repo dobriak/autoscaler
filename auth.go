@@ -30,12 +30,8 @@ type TokenClaims struct {
 
 //Authenticate via a JWT token
 func (c *Client) authSecret(asSecStr string) {
-
-	if len(asSecStr) == 0 {
-		log.Panicln("Missing AS_SECRET environment variable. Please create a service account and assign the secret to AS_SECRET.")
-	}
 	// Get the CA
-	c.downloadFile("dcos-ca.crt", "/ca/dcos-ca.crt")
+	//c.downloadFile("dcos-ca.crt", "/ca/dcos-ca.crt")
 
 	asSec := AsSecret{}
 	json.Unmarshal([]byte(asSecStr), &asSec)
@@ -62,36 +58,19 @@ func (c *Client) authSecret(asSecStr string) {
 		UID:   asSec.UID,
 		Token: signedString,
 	}
-	//Debug only
-	mat, _ := json.Marshal(authToken)
-	log.Infoln(string(mat))
-
-	req, err := client.newRequest("POST", "/acs/api/v1/auth/login", authToken)
-	if err != nil {
-		log.Errorln(err)
-		log.Panicln("Error trying to authenticate with a service account.")
-	}
-
-	body, _ := c.do(req)
-	var result DcosAuthResponse
-	err = json.Unmarshal(body, &result)
-	if err != nil {
-		log.Errorln(body)
-		log.Errorln(err)
-		log.Panicln("Couldn't convert to dcosAuthResponse")
-	}
-
-	log.Infof("Token is obtained: %s", result.Token)
-	c.Token = result.Token
+	c.doAuth(authToken)
 }
 
 func (c *Client) authUserPassword(user, pass string) {
 	usrPass := DcosBasicAuth{user, pass}
+	c.doAuth(usrPass)
+}
 
-	req, err := client.newRequest("POST", "/acs/api/v1/auth/login", usrPass)
+func (c *Client) doAuth(authData interface{}) {
+	req, err := client.newRequest("POST", "/acs/api/v1/auth/login", authData)
 	if err != nil {
 		log.Errorln(err)
-		log.Panicln("Error trying to authenticate with username and password.")
+		log.Panicf("Error trying to authenticate with %s", authData)
 	}
 
 	body, _ := c.do(req)
@@ -103,7 +82,7 @@ func (c *Client) authUserPassword(user, pass string) {
 		log.Panicln("Couldn't convert to dcosAuthResponse")
 	}
 
-	log.Infof("Token is obtained: %s", result.Token)
+	log.Infoln("Token obtained successfully")
 	c.Token = result.Token
 }
 
