@@ -47,18 +47,3 @@ var routes = Routes{
 		RemoveApp,
 	},
 }
-
-/*
-	Route{
-		"GetApp",
-		"GET",
-		"/apps/{appid}",
-		GetApp,
-	},
-	Route{
-		"RemoveApp",
-		"DELETE",
-		"/apps/{appid}",
-		RemoveApp,
-	},
-*/

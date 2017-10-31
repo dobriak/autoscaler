@@ -78,8 +78,6 @@ func AddApp(w http.ResponseWriter, r *http.Request) {
 
 //GetApp finds and displays a monitored app by its ID
 func GetApp(w http.ResponseWriter, r *http.Request) {
-	//vars := mux.Vars(r)
-	//appID := vars["appid"]
 	var appID AppID
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
