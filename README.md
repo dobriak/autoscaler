@@ -34,7 +34,7 @@ Stop and remove Marathon app scaling monitor with ID of ```test3```:
 curl -X DELETE -d '{"app_id":"/test3"}' http://autoscaler.marathon.l4lb.thisdcos.directory/apps
 ```
 
-# App scaling monitor options
+### App scaling monitor options
 * **app_id** - App monitor ID, same as the Marathon app ID being monitored
 * **max_cpu** - Maximum percentage of CPU utilization inside the container allowed
 * **min_cpu** - Minimum percentage of CPU
