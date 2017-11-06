@@ -4,6 +4,13 @@
 # To stop the monitors and remove the marathon apps: sample_apps.sh stop
 #
 #set -x
+if [ -f /etc/redhat-release ]; then
+    if ! rpm -qa | grep jq; then
+        echo "Please install jq from epel"
+        exit 1
+    fi
+fi
+
 AS_URL="http://autoscaler.marathon.l4lb.thisdcos.directory"
 MASTER_URL="http://leader.mesos"
 NAMESPACE="myapp"
