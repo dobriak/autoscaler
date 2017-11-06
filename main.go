@@ -8,11 +8,16 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-func main() {
+func init() {
 	Formatter := new(log.TextFormatter)
 	Formatter.TimestampFormat = "2006-01-02 15:04:05"
 	Formatter.FullTimestamp = true
 	log.SetFormatter(Formatter)
+	log.SetOutput(os.Stdout)
+	log.SetLevel(log.InfoLevel)
+}
+
+func main() {
 	log.Infoln("Autoscaler starting.")
 
 	signalChan := make(chan os.Signal, 1)
